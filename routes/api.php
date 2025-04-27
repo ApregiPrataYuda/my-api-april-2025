@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Administrator;
+use App\Http\Controllers\Api\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,8 +16,19 @@ use App\Http\Controllers\Api\Administrator;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+Route::prefix('Auth')->group(function () {
+    Route::post('/register', [Auth::class, 'register'])->name('register');
+    Route::post('/login', [Auth::class, 'login'])->name('login');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/profile', [Auth::class, 'profile']);
+        Route::post('/logout', [Auth::class, 'logout']);
+    });
 });
 
 
@@ -26,4 +38,14 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::get('show-menu/{id}', [Administrator::class, 'showMenu'])->name('show.menu');
     Route::put('update-menu/{id}', [Administrator::class, 'updateMenu'])->name('update.menu');
     Route::delete('delete-menu/{id}', [Administrator::class, 'destroyMenu'])->name('destroy.menu');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('Administrator')->name('Administrator.')->group(function () {
+    Route::get('submenu', [Administrator::class, 'indexSubMenu'])->name('submenu');
+    Route::post('store-submenu', [Administrator::class, 'storeSubMenu'])->name('store.submenu');
+    Route::get('show-submenu/{id}', [Administrator::class, 'showSubMenu'])->name('show.submenu');
+    Route::put('update-submenu/{id}', [Administrator::class, 'updateSubMenu'])->name('update.submenu');
+    Route::delete('delete-submenu/{id}', [Administrator::class, 'destroySubMenu'])->name('destroy.submenu');
+});
 });

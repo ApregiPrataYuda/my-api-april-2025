@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-
+use Illuminate\Auth\AuthenticationException;
 class Handler extends ExceptionHandler
 {
     /**
@@ -44,5 +44,17 @@ class Handler extends ExceptionHandler
         $exception->errors(),
         $exception->status
     );
+}
+
+
+public function render($request, Throwable $exception)
+{
+    if ($exception instanceof AuthenticationException) {
+        return response()->json([
+            'error' => 'Unauthorized. kamu harus login dan butuh token.',
+        ], 401);
+    }
+
+    return parent::render($request, $exception);
 }
 }
