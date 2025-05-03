@@ -32,6 +32,8 @@ Route::prefix('Auth')->group(function () {
 });
 
 
+
+Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::get('menu', [Administrator::class, 'indexMenu'])->name('menu');
     Route::post('store-menu', [Administrator::class, 'storeMenu'])->name('store.menu');
@@ -39,6 +41,10 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::put('update-menu/{id}', [Administrator::class, 'updateMenu'])->name('update.menu');
     Route::delete('delete-menu/{id}', [Administrator::class, 'destroyMenu'])->name('destroy.menu');
 });
+});
+
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('Administrator')->name('Administrator.')->group(function () {
@@ -48,4 +54,24 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::put('update-submenu/{id}', [Administrator::class, 'updateSubMenu'])->name('update.submenu');
     Route::delete('delete-submenu/{id}', [Administrator::class, 'destroySubMenu'])->name('destroy.submenu');
 });
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('Administrator')->name('Administrator.')->group(function () {
+    Route::get('role', [Administrator::class, 'indexRole'])->name('role');
+    Route::post('store-role', [Administrator::class, 'storeRole'])->name('store.role');
+    Route::get('show-role/{id}', [Administrator::class, 'showRole'])->name('show.role');
+    Route::put('update-role/{id}', [Administrator::class, 'updateRole'])->name('update.role');
+    Route::delete('delete-role/{id}', [Administrator::class, 'destroyRole'])->name('destroy.role');
+});
+});
+
+
+Route::prefix('Administrator')->name('Administrator.')->group(function () {
+    Route::get('user', [Administrator::class, 'indexUser'])->name('user');
+    // Route::post('store-role', [Administrator::class, 'storeRole'])->name('store.role');
+    // Route::get('show-role/{id}', [Administrator::class, 'showRole'])->name('show.role');
+    // Route::put('update-role/{id}', [Administrator::class, 'updateRole'])->name('update.role');
+    // Route::delete('delete-role/{id}', [Administrator::class, 'destroyRole'])->name('destroy.role');
 });

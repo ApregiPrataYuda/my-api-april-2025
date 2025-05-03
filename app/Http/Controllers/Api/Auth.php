@@ -70,13 +70,38 @@ public function login(Request $request)
     
 }
 
+
+// logout basic
+// public function logout(Request $request)
+// {
+//     $request->user()->currentAccessToken()->delete();
+
+//     return response()->json([
+//         'message' => 'Logout berhasil'
+//     ]);
+// }
+
 public function logout(Request $request)
 {
-    $request->user()->currentAccessToken()->delete();
+    $user = $request->user();
+
+    // Hapus semua token user (kalau mau logout dari semua device)
+    // $user->tokens()->delete(); 
+
+    // Atau hanya hapus token yang aktif sekarang (lebih umum)
+    $user->currentAccessToken()->delete();
+
+    // Pastikan user tidak punya token aktif lagi
+    if ($user->tokens()->count() === 0) {
+        return response()->json([
+            'message' => 'Logout berhasil dan semua token sudah dihapus'
+        ]);
+    }
 
     return response()->json([
-        'message' => 'Logout berhasil'
+        'message' => 'Logout berhasil, tetapi masih ada token lain yang aktif'
     ]);
 }
+
 
 }

@@ -14,19 +14,22 @@ use App\Models\submenu;
 use App\Http\Resources\SubmenuResource;
 use App\Http\Requests\SubmenuIndexRequest;
 use App\Http\Requests\validationSubmenu;
-
-
-
 use App\Helpers\ApiResponse;
+use App\Models\Role;
+use App\Http\Requests\RoleIndexRequest;
+use App\Http\Resources\RoleResource;
+use App\Http\Requests\validationRole;
 
 class Administrator extends Controller
 {
 
     protected $Menu;
     protected $submenu;
-    public function __construct(Menu $Menu, submenu $submenu) {
+    protected $Role;
+    public function __construct(Role $Role, Menu $Menu, submenu $submenu) {
         $this->Menu = $Menu;
         $this->submenu = $submenu;
+        $this->Role = $Role;
     }
 
     
@@ -188,7 +191,19 @@ class Administrator extends Controller
          // ?sort_by=menu&sort_dir=asc   -> sorting berdasarkan kolom
          // ?only_deleted=true           -> hanya tampilkan soft deleted
      
-         $query = $this->submenu->query();
+        //  $query = $this->submenu->query();
+        $query = $this->submenu
+        ->select(
+            'ms_submenu.*',
+            'ms_submenu.title as titles',
+            'ms_menu.menu',
+            'parent_submenu.title AS parent_menu_name'
+        )
+        ->leftJoin('ms_menu', 'ms_submenu.id_menu', '=', 'ms_menu.id_menu')
+        ->leftJoin('ms_submenu AS parent_submenu', 'ms_submenu.parent_id', '=', 'parent_submenu.id_submenu');
+ 
+    
+
  
          if ($onlyDeleted) {
              $query->onlyTrashed();
@@ -302,7 +317,7 @@ class Administrator extends Controller
     {
         try {
             $SubMenu = $this->submenu->find($id);
-            // Jika kategori tidak ditemukan, kembalikan response 404
+            // Jika submenu tidak ditemukan, kembalikan response 404
             if (!$SubMenu) {
                 return response()->json(['error' => 'Your Request Menu Not Found'], 404);
             }
@@ -319,4 +334,138 @@ class Administrator extends Controller
     }
 
     // end api for submenu 
+
+
+
+
+
+
+    // end api for role
+
+    public function indexRole(RoleIndexRequest $request)  {
+        // Parameter dari query string
+        $validated = $request->validated();
+
+        $search      = $validated['search'] ?? null;
+        $perPage     = $validated['per_page'] ?? 10;
+        $sortBy      = $validated['sort_by'] ?? 'created_at';
+        $sortDir     = $validated['sort_dir'] ?? 'desc';
+        $onlyDeleted = $validated['only_deleted'] ?? false;
+    
+        // Contoh URL penggunaan:
+        // ?search=Kilogram              -> cari berdasarkan menu
+        // ?per_page=20                 -> jumlah data per halaman
+        // ?search=admin&per_page=10    -> pencarian + pagination
+        // ?sort_by=menu&sort_dir=asc   -> sorting berdasarkan kolom
+        // ?only_deleted=true           -> hanya tampilkan soft deleted
+    
+        $query = $this->Role->query();
+
+        if ($onlyDeleted) {
+            $query->onlyTrashed();
+        }
+    
+        if ($search) {
+            $query->where('role', 'like', '%' . $search . '%');
+        }
+    
+        // Sorting dan pagination
+        $role = $query->orderBy($sortBy, $sortDir)->paginate($perPage);
+    
+
+        if ($role->isEmpty()) {
+            return ApiResponse::error('Data tidak ditemukan atau tidak tersedia', [
+                'role' => [],
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $perPage,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'next_page_url' => null,
+                    'prev_page_url' => null,
+                ]
+            ], 404);
+        }
+    
+
+        return ApiResponse::success('Success', [
+            'role' => RoleResource::collection($role),
+            'pagination' => [
+                'total' => $role->total(),
+                'per_page' => $role->perPage(),
+                'current_page' => $role->currentPage(),
+                'last_page' => $role->lastPage(),
+                'next_page_url' => $role->nextPageUrl(),
+                'prev_page_url' => $role->previousPageUrl(),
+            ]
+        ]);
+    }
+
+
+    public function showRole(string $id)
+    {
+        $role = $this->Role->find($id);
+        if (!$role) {
+            return response()->json(['error' => 'Your Request data not found'], 404);
+        }
+        return ApiResponse::success('Success', new RoleResource($role), 200);
+    }
+
+
+    public function storeRole(validationRole $request)  {
+
+        $data = $request->validated();
+            if ($this->Role->where('role', $data['role'])->exists()) {
+                throw new HttpResponseException(response()->json([
+                    'errors' => [
+                        'role' => ['Nama Role sudah tersedia.']
+                    ]
+                ], 400));
+            }
+    
+            $Role = $this->Role->create([
+                'role' => $data['role'],
+            ]);
+    
+            return ApiResponse::success('Success Create New Role', new RoleResource($Role), 200);
+    }
+
+
+    public function updateRole(validationRole $request, $id)  {
+        $data = $request->validated();
+    
+            $Role = $this->Role->find($id);
+        
+            if (!$Role) {
+                return response()->json(['error' => 'Your Request ID role not found'], 404);
+            }
+        
+            $Role->update($data);
+            return ApiResponse::success('success updated Role', new RoleResource($Role), 200);
+    }
+
+
+    public function destroyRole(string $id)
+    {
+        // Cari kategori berdasarkan ID
+    $Role = $this->Role->find($id);
+    
+    // Jika kategori tidak ditemukan, kembalikan response 404
+    if (!$Role) {
+        return response()->json(['error' => 'Your Request Role Not Found'], 404);
+    }
+    
+    // Hapus kategori
+    $Role->delete();
+    
+    // Return response sukses
+    return ApiResponse::success('Success Deleted Role', new RoleResource($Role), 200);
+   
+    }
+
+
+    public function indexUser() {
+        
+    }
+
 }
