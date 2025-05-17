@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class users extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use SoftDeletes;
     protected $table = 'users';
 
     protected $primaryKey = 'id_user';
@@ -21,6 +22,6 @@ class users extends Model
 
     public $timestamps = true;
 
-    protected $fillable = ['fullname','username','role_id','id_group','name', 'email', 'password', 'role'];
+    protected $fillable = ['fullname','username','divisi_id','role_id','id_group','name', 'email', 'password', 'role','image'];
 
 }

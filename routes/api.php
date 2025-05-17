@@ -46,7 +46,7 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::get('submenu', [Administrator::class, 'indexSubMenu'])->name('submenu');
     Route::post('store-submenu', [Administrator::class, 'storeSubMenu'])->name('store.submenu');
@@ -54,7 +54,7 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::put('update-submenu/{id}', [Administrator::class, 'updateSubMenu'])->name('update.submenu');
     Route::delete('delete-submenu/{id}', [Administrator::class, 'destroySubMenu'])->name('destroy.submenu');
 });
-});
+// });
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -70,8 +70,9 @@ Route::prefix('Administrator')->name('Administrator.')->group(function () {
 
 Route::prefix('Administrator')->name('Administrator.')->group(function () {
     Route::get('user', [Administrator::class, 'indexUser'])->name('user');
-    // Route::post('store-role', [Administrator::class, 'storeRole'])->name('store.role');
-    // Route::get('show-role/{id}', [Administrator::class, 'showRole'])->name('show.role');
-    // Route::put('update-role/{id}', [Administrator::class, 'updateRole'])->name('update.role');
-    // Route::delete('delete-role/{id}', [Administrator::class, 'destroyRole'])->name('destroy.role');
+    Route::post('store-user', [Administrator::class, 'storeUser'])->name('store.user');
+    Route::get('show-user/{id}', [Administrator::class, 'showUser'])->name('show.user');
+    // catatan yang sering membuat pusing jika menangani image update route biarkan post dan untuk penejelasan lainya baca di controller 
+    Route::post('update-user/{id}', [Administrator::class, 'updateUser'])->name('update.user');
+    Route::delete('delete-user/{id}', [Administrator::class, 'destroyUser'])->name('destroy.user');
 });
